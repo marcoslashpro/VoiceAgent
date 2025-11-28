@@ -1,0 +1,19 @@
+[project]
+name = "voiceagent"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "pipecat-ai[cartesia,daily,deepgram,local-smart-turn-v3,openai,runner,silero,webrtc,whisper]",
+    "pipecat-ai-cli",
+    "kokoro>=0.9.4",
+    "openai-whisper>=20250625",
+    "pip>=25.3",
+    "pydantic-ai>=1.24.0",
+    "python-dotenv>=1.2.1",
+    "torch==2.2.2",
+    "torchvision==0.17.2",
+    "torchaudio==2.2.2",
+    "numpy<2",
+]
