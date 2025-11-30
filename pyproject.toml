@@ -5,7 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "pipecat-ai[cartesia,daily,deepgram,local-smart-turn-v3,openai,runner,silero,webrtc,whisper]",
+    "pipecat-ai[daily,local-smart-turn-v3,runner,silero,webrtc,whisper]",
     "pipecat-ai-cli",
     "kokoro>=0.9.4",
     "openai-whisper>=20250625",
@@ -16,4 +16,10 @@ dependencies = [
     "torchvision==0.17.2",
     "torchaudio==2.2.2",
     "numpy<2",
+    "ollama>=0.6.1",
+]
+
+[tool.uv.workspace]
+members = [
+    "notebooks",
 ]

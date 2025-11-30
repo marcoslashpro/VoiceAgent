@@ -23,25 +23,35 @@ from pipecat.runner.types import RunnerArguments
 from pipecat.runner.utils import create_transport
 from pipecat.transports.base_transport import BaseTransport, TransportParams
 from pipecat.transports.daily.transport import DailyParams
+from pipecat.utils.text.markdown_text_filter import MarkdownTextFilter
+from pipecat.services.anthropic import AnthropicLLMService
 
-from voiceagent.agents import WhisperSTTService, OLLamaLLMService, KokoroTTSService
+from voiceagent.agents import WhisperSTTService, OllamaLLMService, KokoroTTSService
+from voiceagent.system_prompt import SYSTEM_PROMPT
+from voiceagent.tools import tools, get_quote_of_the_day
 from kokoro import KPipeline
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+
+stt = WhisperSTTService(model="tiny")
+
+tts = KokoroTTSService(
+    pipeline=KPipeline(lang_code="a"),
+    voice="af_heart",
+    text_filters=[MarkdownTextFilter()],
+)
+
+llm = AnthropicLLMService(model='claude-haiku-4-5', api_key=os.environ['ANTHROPIC_API_KEY'])
 
 
 async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
     print(f"Starting bot")
 
-    stt = WhisperSTTService(model="tiny")
-
-    tts = KokoroTTSService(pipeline=KPipeline(lang_code="a"), voice="af_heart")
-
-    llm = OLLamaLLMService(model="smollm2:1.7b")
-
     messages = [
-        {
-            "role": "system",
-            "content": "You are helpful. honest and harmless.",
-        },
+        {"role": "system", "content": SYSTEM_PROMPT},
     ]
 
     context = LLMContext(cast(list[LLMContextMessage], messages))
@@ -76,10 +86,14 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
         print(f"Client connected")
         # Kick off the conversation.
         messages.append(
-            {"role": "system", "content": "Say hello and briefly introduce yourself."}
+            {
+                "role": "user",
+                "content": "Mi voglio uccidere",
+            }
         )
         await task.queue_frames([LLMRunFrame()])
 
+    @llm.event_handler("")
     @transport.event_handler("on_client_disconnected")
     async def on_client_disconnected(transport, client):
         print(f"Client disconnected")
