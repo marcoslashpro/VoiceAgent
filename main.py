@@ -5,10 +5,10 @@ from pipecat.audio.turn.smart_turn.local_smart_turn_v3 import LocalSmartTurnAnal
 print("✅ Local Smart Turn Analyzer V3 loaded")
 print("Loading Silero VAD model...")
 from pipecat.audio.vad.silero import SileroVADAnalyzer
+from pipecat.audio.vad.vad_analyzer import VADParams
 
 print("✅ Silero VAD model loaded")
 
-from pipecat.audio.vad.vad_analyzer import VADParams
 from pipecat.frames.frames import LLMRunFrame
 
 from pipecat.pipeline.pipeline import Pipeline
@@ -24,12 +24,17 @@ from pipecat.runner.utils import create_transport
 from pipecat.transports.base_transport import BaseTransport, TransportParams
 from pipecat.transports.daily.transport import DailyParams
 from pipecat.utils.text.markdown_text_filter import MarkdownTextFilter
-from pipecat.services.anthropic import AnthropicLLMService
+from pipecat.services.anthropic.llm import AnthropicLLMService
 
-from voiceagent.agents import WhisperSTTService, OllamaLLMService, KokoroTTSService
-from voiceagent.system_prompt import SYSTEM_PROMPT
-from voiceagent.tools import tools, get_quote_of_the_day
+from voiceagent.agents import WhisperSTTService
+
+print("✅ Whisper model loaded")
+from voiceagent.agents import KokoroTTSService
 from kokoro import KPipeline
+
+print("✅ Kokoro model loaded")
+from voiceagent.system_prompt import SYSTEM_PROMPT
+
 from dotenv import load_dotenv
 import os
 
@@ -39,17 +44,17 @@ load_dotenv()
 stt = WhisperSTTService(model="tiny")
 
 tts = KokoroTTSService(
-    pipeline=KPipeline(lang_code="a"),
+    pipeline=KPipeline(lang_code="a", repo_id="hexgrad/Kokoro-82M"),
     voice="af_heart",
     text_filters=[MarkdownTextFilter()],
 )
 
-llm = AnthropicLLMService(model='claude-haiku-4-5', api_key=os.environ['ANTHROPIC_API_KEY'])
+llm = AnthropicLLMService(
+    model="claude-haiku-4-5", api_key=os.environ["ANTHROPIC_API_KEY"]
+)
 
 
 async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
-    print(f"Starting bot")
-
     messages = [
         {"role": "system", "content": SYSTEM_PROMPT},
     ]
@@ -88,12 +93,11 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
         messages.append(
             {
                 "role": "user",
-                "content": "Mi voglio uccidere",
+                "content": "Introduce yourself in english to the user as Alu and ask him how can you help him.",
             }
         )
         await task.queue_frames([LLMRunFrame()])
 
-    @llm.event_handler("")
     @transport.event_handler("on_client_disconnected")
     async def on_client_disconnected(transport, client):
         print(f"Client disconnected")

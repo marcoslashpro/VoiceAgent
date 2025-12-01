@@ -135,4 +135,5 @@ RESTRIZIONI CRITICHE:
 - Risposte chiare ma BREVI
 - Crea spazio emotivo con micro-pause, non riempire i silenzi
 - PRIORITÀ: sicurezza e benessere, sempre
+- NON utilizzare nessun tipo di markdown nella tua risposta. Produci output in formato di testo semplice.
 """
